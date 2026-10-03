@@ -1,0 +1,33 @@
+N-QUEENS USING BACKTRACKING
+
+Input:
+A chessboard of size N × N.
+
+Output:
+All possible arrangements of N queens such that no two queens attack each other.
+
+Algorithm:
+
+1. Start with an empty N × N chessboard.
+
+2. Begin from the first row.
+
+3. Try placing a queen in each column of the current row.
+
+4. Check whether the position is safe:
+   a. Check the same column.
+   b. Check the upper-left diagonal.
+   c. Check the upper-right diagonal.
+
+5. If the position is safe:
+   a. Place the queen.
+   b. Move to the next row.
+
+6. If no safe position is available in the current row:
+   a. Backtrack to the previous row.
+   b. Remove the previously placed queen.
+   c. Try another column.
+
+7. Continue until all N queens are placed.
+
+8. When all N queens are successfully placed, record the solution.

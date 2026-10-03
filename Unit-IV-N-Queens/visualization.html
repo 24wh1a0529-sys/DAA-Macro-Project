@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N-Queens State Space Tree</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  color: #1f2937;
+  margin: 0;
+  padding: 25px;
+}
+h1 { text-align: center; color: #17365d; }
+.subtitle { text-align: center; color: #526174; }
+.legend { text-align: center; margin: 20px; line-height: 2.2; }
+.tag { padding: 6px 10px; border-radius: 6px; margin: 5px; }
+.green { background: #dcfce7; color: #166534; }
+.red { background: #fee2e2; color: #991b1b; }
+.orange { background: #ffedd5; color: #9a3412; }
+.tree {
+  overflow-x: auto;
+  padding: 25px 10px;
+  text-align: center;
+}
+.tree ul {
+  display: flex;
+  justify-content: center;
+  padding: 25px 0 0;
+  position: relative;
+  list-style: none;
+  margin: 0;
+}
+.tree li {
+  position: relative;
+  padding: 22px 7px 0;
+  text-align: center;
+}
+.tree li::before, .tree li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: 22px;
+  border-top: 2px solid #94a3b8;
+}
+.tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 2px solid #94a3b8;
+}
+.tree li:only-child::before,
+.tree li:only-child::after { display: none; }
+.tree li:only-child { padding-top: 0; }
+.tree li:first-child::before,
+.tree li:last-child::after { border: 0; }
+.tree li:last-child::before { border-right: 2px solid #94a3b8; }
+.tree ul ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 22px;
+  border-left: 2px solid #94a3b8;
+}
+.node {
+  display: inline-block;
+  min-width: 105px;
+  padding: 12px 10px;
+  border: 2px solid #64748b;
+  border-radius: 10px;
+  background: white;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 3px 8px #00000012;
+}
+.root { background: #dbeafe; border-color: #2563eb; font-weight: bold; }
+.valid { background: #dcfce7; border-color: #16a34a; }
+.invalid { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+.solution { background: #bbf7d0; border: 3px solid #15803d; font-weight: bold; }
+.backtrack { color: #9a3412; font-size: 11px; font-weight: bold; }
+.note { text-align: center; max-width: 850px; margin: 25px auto; line-height: 1.7; }
+.board {
+  font-family: monospace;
+  font-size: 14px;
+  white-space: pre;
+}
+button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: #17365d;
+  color: white;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<h1>N-Queens (N = 4)</h1>
+<p class="subtitle">State Space Tree Using Backtracking</p>
+
+<div class="legend">
+  <span class="tag green">Green: Valid solution</span>
+  <span class="tag red">Red: Invalid / dead end</span>
+  <span class="tag orange">Orange: Backtracking</span>
+</div>
+
+<div class="note">
+  Each level places one queen in the next row. A branch is explored
+  only when the queen does not share a column or diagonal with an
+  earlier queen. Failed branches lead to backtracking.
+</div>
+
+<div class="tree">
+  <ul><li id="treeRoot"></li></ul>
+</div>
+
+<div class="note" id="summary"></div>
+
+<script>
+const N = 4;
+let solutionCount = 0;
+let deadEndCount = 0;
+
+function isSafe(positions, col) {
+  const row = positions.length;
+
+  for (let r = 0; r < row; r++) {
+    const previousCol = positions[r];
+
+    if (previousCol === col) return false;
+
+    if (Math.abs(previousCol - col) === Math.abs(r - row)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function makeNode(label, type, extra = "") {
+  const li = document.createElement("li");
+  const box = document.createElement("div");
+  box.className = "node " + type;
+  box.innerHTML = label + extra;
+  li.appendChild(box);
+  return li;
+}
+
+function buildTree(positions) {
+  const row = positions.length;
+
+  if (row === N) {
+    solutionCount++;
+    const li = makeNode(
+      "✓ SOLUTION " + solutionCount,
+      "solution",
+      "<br>Columns: " + positions.map(c => c + 1).join(", ")
+    );
+
+    const board = document.createElement("div");
+    board.className = "board";
+    board.textContent = "\n" + positions.map(c =>
+      Array.from({length:N}, (_, i) => i === c ? "Q" : ".").join(" ")
+    ).join("\n");
+    li.firstChild.appendChild(board);
+    return li;
+  }
+
+  const choices = [];
+  for (let col = 0; col < N; col++) {
+    if (isSafe(positions, col)) choices.push(col);
+  }
+
+  if (choices.length === 0) {
+    deadEndCount++;
+    return makeNode(
+      "✕ DEAD END",
+      "invalid",
+      "<br>No safe column<br><span class='backtrack'>↶ Backtrack</span>"
+    );
+  }
+
+  const li = makeNode(
+    row === 0 ? "START" : "Row " + row,
+    row === 0 ? "root" : "valid",
+    row === 0 ? "" : "<br>Queen placements: " +
+      positions.map((c, r) => "R" + (r+1) + "C" + (c+1)).join(" → ")
+  );
+
+  const ul = document.createElement("ul");
+
+  choices.forEach(col => {
+    const next = positions.concat(col);
+    const child = buildTree(next);
+    const label = document.createElement("div");
+    label.className = "node valid";
+    label.innerHTML = "Place Q" + (row + 1) +
+      "<br>(R" + (row + 1) + ", C" + (col + 1) + ")";
+    const branch = document.createElement("li");
+    branch.appendChild(label);
+
+    if (child.classList.contains("invalid")) {
+      label.className = "node invalid";
+    }
+
+    if (child.querySelector && child.querySelector(".solution")) {
+      // Keep the recursive branch and solution visible.
+    }
+
+    const childList = document.createElement("ul");
+    childList.appendChild(child);
+    branch.appendChild(childList);
+    ul.appendChild(branch);
+  });
+
+  li.appendChild(ul);
+  return li;
+}
+
+document.getElementById("treeRoot").appendChild(buildTree([]));
+
+document.getElementById("summary").innerHTML =
+  "<h2>Results</h2>" +
+  "<p><strong>Solutions found:</strong> " + solutionCount + "</p>" +
+  "<p><strong>Dead ends:</strong> " + deadEndCount + "</p>" +
+  "<p>There are exactly two solutions for the 4-Queens problem.</p>" +
+  "<p><strong>Time complexity:</strong> O(N!) in the usual backtracking analysis.</p>";
+
+</script>
+</body>
+</html>

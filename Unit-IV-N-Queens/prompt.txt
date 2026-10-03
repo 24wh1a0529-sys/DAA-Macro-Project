@@ -1,0 +1,22 @@
+Create a clean academic state-space tree visualization for the N-Queens problem with N = 4.
+
+Show the recursive process of placing 4 queens on a 4 × 4 chessboard, one queen per row.
+
+The visualization should:
+1. Start with a root node labeled "Start".
+2. Show the possible column choices for placing the queen in Row 1.
+3. Continue branching for Row 2, Row 3, and Row 4.
+4. Represent each node as a queen placement using row and column notation such as (R1,C1).
+5. Clearly show valid and invalid branches.
+6. Mark invalid branches with a red cross and label them "Invalid".
+7. Show backtracking when a branch cannot lead to a solution.
+8. Highlight the valid solution paths with a green check mark.
+9. Include at least one complete valid 4-queen arrangement.
+10. Clearly label the tree levels as Row 1, Row 2, Row 3, and Row 4.
+11. Use arrows to show the direction of recursive exploration and backtracking.
+12. Keep the diagram uncluttered, readable, and suitable for a college DAA project presentation.
+
+Title the diagram:
+"N-Queens (N = 4) – State Space Tree Using Backtracking"
+
+Use a professional academic style with clear labels and a white background.
